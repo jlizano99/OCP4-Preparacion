@@ -1,0 +1,8 @@
+local=/ocp4.gbm.net/
+address=/apps.ocp4.gbm.net/192.168.117.130
+srv-host=_etcd-server-ssl._tcp.ocp4.gbm.net,etcd-0.ocp4.gbm.net,2380,0,10
+srv-host=_etcd-server-ssl._tcp.ocp4.gbm.net,etcd-1.ocp4.gbm.net,2380,0,10
+srv-host=_etcd-server-ssl._tcp.ocp4.gbm.net,etcd-2.ocp4.gbm.net,2380,0,10
+no-hosts 
+addn-hosts=/etc/dnsmasq.openshift.addnhosts
+conf-dir=/etc/dnsmasq.d,.rpmnew,.rpmsave,.rpmorig

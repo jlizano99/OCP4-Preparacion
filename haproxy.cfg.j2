@@ -1,0 +1,77 @@
+global
+    log         127.0.0.1 local2 info
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+
+defaults
+    timeout connect         5s
+    timeout client          30s
+    timeout server          30s
+    log                     global
+
+frontend kubernetes_api
+    bind 0.0.0.0:6443
+    default_backend kubernetes_api
+    mode tcp
+    option tcplog
+
+backend kubernetes_api
+    balance roundrobin
+    mode tcp
+    option ssl-hello-chk
+    server bootstrap.ocp4.gbm.net 192.168.117.91:6443 check
+    server master01.ocp4.gbm.net 192.168.117.92:6443 check
+    server master02.ocp4.gbm.net 192.168.117.93:6443 check
+    server master03.ocp4.gbm.net 192.168.117.94:6443 check
+
+frontend machine_config
+    bind 0.0.0.0:22623
+    default_backend machine_config
+    mode tcp
+    option tcplog
+
+backend machine_config
+    balance roundrobin
+    mode tcp
+    option ssl-hello-chk
+    server bootstrap.ocp4.gbm.net 192.168.117.91:22623 check
+    server master01.ocp4.gbm.net 192.168.117.92:22623 check
+    server master02.ocp4.gbm.net 192.168.117.93:22623 check
+    server master03.ocp4.gbm.net 192.168.117.94:22623 check
+
+frontend router_https
+    bind 0.0.0.0:443
+    mode tcp
+    option tcplog
+    default_backend router_https
+
+backend router_https
+    balance roundrobin
+    mode tcp
+    option ssl-hello-chk
+    server worker01.ocp4.gbm.net 192.168.117.95:443 check
+    server worker02.ocp4.gbm.net 192.168.117.96:443 check
+
+frontend router_http
+    mode http
+    option httplog
+    bind 0.0.0.0:80
+    default_backend router_http
+
+backend router_http
+    mode http
+    balance roundrobin
+    server worker01.ocp4.gbm.net 192.168.117.95:80 check
+    server worker02.ocp4.gbm.net 192.168.117.96:80 check
+
+listen stats
+        bind 192.168.117.130:9090
+        mode http
+        stats enable
+        stats uri /
+        stats realm Strictly\ Private
+        stats auth admin:admin
